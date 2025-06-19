@@ -1,0 +1,51 @@
+cd /home/training
+nano resh_data.csv
+
+emp_id,name,department,salary
+101,Alice,Engineering,75000
+102,Ramesh,Marketing,60000
+103,Charlie,Finance,72000
+104,David,Engineering,80000
+#Upload to hdfs
+hadoop fs -mkdir -p /reshman/cloudera/reshdata
+hadoop fs -put resh_data.csv /reshman/cloudera/reshdata/
+hadoop fs -ls /reshman/cloudera/reshdata/
+#open hive
+hive
+#create db,table
+CREATE DATABASE reshman;
+USE reshdata;
+CREATE TABLE reshdata (
+emp_id INT,
+name STRING,
+department STRING,
+salary INT
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+TBLPROPERTIES ("skip.header.line.count"="1");
+#Load data
+LOAD DATA INPATH '/reshman/cloudera/reshdata/resh_data.csv' INTO TABLE reshdata;
+#query
+SELECT * FROM employees;
+#task 2
+mysql -u training -p
+# Enter password: training
+SHOW DATABASES;
+USE training;
+SHOW TABLES;
+SELECT * FROM Movies LIMIT 5;
+#terminal
+sqoop import \
+--connect jdbc:mysql://localhost:3306/training \
+--username training \
+--password training \
+--table Movies \
+--target-dir /user/cloudera/sqoop_movies \
+--m 1
+#verify
+hadoop fs -ls /user/cloudera/sqoop_movies
+hadoop fs -cat /user/cloudera/sqoop_movies/part-m-00000 | head -10
+
+
